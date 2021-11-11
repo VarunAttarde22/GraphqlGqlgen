@@ -1,0 +1,129 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Nodes {
+nodes: [Node1]
+ pageInfo: PageInfo!
+}
+
+type Covids {
+covids: [Covid10]
+ pageInfo: PageInfo!
+}
+
+type Covid {
+  id: ID!
+			dailyconfirmed: String!
+			dailydeceased: String!
+			dailyrecovered: String!
+			date: String!
+			dateymd: String!
+			totalconfirmed: String!
+			totaldeceased: String!
+			totalrecovered: String!
+		}
+type Covid_1 {
+			dailyconfirmed: String
+			dailydeceased: String
+			dailyrecovered: String
+			date: String
+			dateymd: String
+			totalconfirmed: String
+			totaldeceased: String
+			totalrecovered: String
+		}
+    type Covid_2 {
+			dailyconfirmed: String
+			dailydeceased: String
+			dailyrecovered: String
+			date: String
+			dateymd: String
+			totalconfirmed: String
+			totaldeceased: String
+			totalrecovered: String
+		}
+type Covid_Main {
+			cases_time_series: [Covid]
+			statewise: [Covid_1]
+			tested: [Covid_2]
+		}
+type Node1 {
+  cursor: ID!
+  node: Node
+} 
+type Covid10 {
+  cursor: ID!
+  covid: Covid
+} 
+
+type Node {
+  ip: String!
+  serial: String!
+  model: String!
+  credentials: String!
+  template: String!
+  networks: [Ips]!
+  roles: [Roles]
+}
+
+type Ips {
+  ipType: String!
+  ip: String!
+  netmask: String!
+  gateway: String!
+
+}
+
+input NewIps {
+  ipType: String!
+  ip: String!
+  netmask: String!
+  gateway: String!
+
+}
+type Roles {
+  roleType: String!
+  label: [String]
+
+}
+
+input NewRoles {
+  roleType: String!
+  label: [String]
+
+}
+
+type PageInfo {
+  startCursor: ID!
+  endCursor: ID!
+  hasNextPage: Boolean
+}
+
+
+type Query {
+  nodes: [Node]
+  getNodes(first: Int = 1, after: ID) : Nodes
+  getNodesByUrl: [Covid]
+  getNodesByUrlPagination(first: Int = 1, after: ID) : Covids
+
+
+}
+
+input NewNode {
+  ip: String!
+  serial: String!
+  model: String!
+  credentials: String!
+  template: String!
+  networks: [NewIps!]!
+  roles: [NewRoles!]
+}
+
+type Mutation {
+  createNode(input: NewNode!): Node!
+}
+
+type Subscription {
+  videoAdded(repoFullName: String!): Node!
+}
