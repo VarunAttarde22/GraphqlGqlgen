@@ -104,10 +104,23 @@ type PageInfo {
 type Query {
   nodes: [Node]
   getNodes(first: Int = 1, after: ID) : Nodes
-  getNodesByUrl: [Covid]
+  getNodesByUrl(sort: CovidDataSort): [Covid]
   getNodesByUrlPagination(first: Int = 1, after: ID) : Covids
+}
 
+enum Sort {
+  asc
+  desc
+}
 
+input CovidDataSort {
+  dailyconfirmed: Sort
+  dailydeceased: Sort
+  dailyrecovered: Sort
+  date: Sort
+  totalconfirmed: Sort
+  totaldeceased: Sort
+  totalrecovered: Sort
 }
 
 input NewNode {

@@ -133,7 +133,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		GetNodes                func(childComplexity int, first *int, after *string) int
-		GetNodesByURL           func(childComplexity int) int
+		GetNodesByURL           func(childComplexity int, sort *model.CovidDataSort) int
 		GetNodesByURLPagination func(childComplexity int, first *int, after *string) int
 		Nodes                   func(childComplexity int) int
 	}
@@ -154,7 +154,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	Nodes(ctx context.Context) ([]*model.Node, error)
 	GetNodes(ctx context.Context, first *int, after *string) (*model.Nodes, error)
-	GetNodesByURL(ctx context.Context) ([]*model.Covid, error)
+	GetNodesByURL(ctx context.Context, sort *model.CovidDataSort) ([]*model.Covid, error)
 	GetNodesByURLPagination(ctx context.Context, first *int, after *string) (*model.Covids, error)
 }
 type SubscriptionResolver interface {
@@ -555,7 +555,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.GetNodesByURL(childComplexity), true
+		args, err := ec.field_Query_getNodesByUrl_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetNodesByURL(childComplexity, args["sort"].(*model.CovidDataSort)), true
 
 	case "Query.getNodesByUrlPagination":
 		if e.complexity.Query.GetNodesByURLPagination == nil {
@@ -789,10 +794,23 @@ type PageInfo {
 type Query {
   nodes: [Node]
   getNodes(first: Int = 1, after: ID) : Nodes
-  getNodesByUrl: [Covid]
+  getNodesByUrl(sort: CovidDataSort): [Covid]
   getNodesByUrlPagination(first: Int = 1, after: ID) : Covids
+}
 
+enum Sort {
+  asc
+  desc
+}
 
+input CovidDataSort {
+  dailyconfirmed: Sort
+  dailydeceased: Sort
+  dailyrecovered: Sort
+  date: Sort
+  totalconfirmed: Sort
+  totaldeceased: Sort
+  totalrecovered: Sort
 }
 
 input NewNode {
@@ -871,6 +889,21 @@ func (ec *executionContext) field_Query_getNodesByUrlPagination_args(ctx context
 		}
 	}
 	args["after"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getNodesByUrl_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.CovidDataSort
+	if tmp, ok := rawArgs["sort"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
+		arg0, err = ec.unmarshalOCovidDataSort2ᚖgithubᚗcomᚋVarunAttarde22ᚋhackernewsᚋgraphᚋmodelᚐCovidDataSort(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["sort"] = arg0
 	return args, nil
 }
 
@@ -2755,9 +2788,16 @@ func (ec *executionContext) _Query_getNodesByUrl(ctx context.Context, field grap
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getNodesByUrl_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetNodesByURL(rctx)
+		return ec.resolvers.Query().GetNodesByURL(rctx, args["sort"].(*model.CovidDataSort))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4121,6 +4161,77 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 // endregion **************************** field.gotpl *****************************
 
 // region    **************************** input.gotpl *****************************
+
+func (ec *executionContext) unmarshalInputCovidDataSort(ctx context.Context, obj interface{}) (model.CovidDataSort, error) {
+	var it model.CovidDataSort
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "dailyconfirmed":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dailyconfirmed"))
+			it.Dailyconfirmed, err = ec.unmarshalOSort2ᚖgithubᚗcomᚋVarunAttarde22ᚋhackernewsᚋgraphᚋmodelᚐSort(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "dailydeceased":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dailydeceased"))
+			it.Dailydeceased, err = ec.unmarshalOSort2ᚖgithubᚗcomᚋVarunAttarde22ᚋhackernewsᚋgraphᚋmodelᚐSort(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "dailyrecovered":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dailyrecovered"))
+			it.Dailyrecovered, err = ec.unmarshalOSort2ᚖgithubᚗcomᚋVarunAttarde22ᚋhackernewsᚋgraphᚋmodelᚐSort(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "date":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
+			it.Date, err = ec.unmarshalOSort2ᚖgithubᚗcomᚋVarunAttarde22ᚋhackernewsᚋgraphᚋmodelᚐSort(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "totalconfirmed":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalconfirmed"))
+			it.Totalconfirmed, err = ec.unmarshalOSort2ᚖgithubᚗcomᚋVarunAttarde22ᚋhackernewsᚋgraphᚋmodelᚐSort(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "totaldeceased":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totaldeceased"))
+			it.Totaldeceased, err = ec.unmarshalOSort2ᚖgithubᚗcomᚋVarunAttarde22ᚋhackernewsᚋgraphᚋmodelᚐSort(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "totalrecovered":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalrecovered"))
+			it.Totalrecovered, err = ec.unmarshalOSort2ᚖgithubᚗcomᚋVarunAttarde22ᚋhackernewsᚋgraphᚋmodelᚐSort(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
 
 func (ec *executionContext) unmarshalInputNewIps(ctx context.Context, obj interface{}) (model.NewIps, error) {
 	var it model.NewIps
@@ -5620,6 +5731,14 @@ func (ec *executionContext) marshalOCovid2ᚖgithubᚗcomᚋVarunAttarde22ᚋhac
 	return ec._Covid(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalOCovidDataSort2ᚖgithubᚗcomᚋVarunAttarde22ᚋhackernewsᚋgraphᚋmodelᚐCovidDataSort(ctx context.Context, v interface{}) (*model.CovidDataSort, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputCovidDataSort(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalOCovid_12ᚕᚖgithubᚗcomᚋVarunAttarde22ᚋhackernewsᚋgraphᚋmodelᚐCovid1(ctx context.Context, sel ast.SelectionSet, v []*model.Covid1) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -5933,6 +6052,22 @@ func (ec *executionContext) marshalORoles2ᚖgithubᚗcomᚋVarunAttarde22ᚋhac
 		return graphql.Null
 	}
 	return ec._Roles(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOSort2ᚖgithubᚗcomᚋVarunAttarde22ᚋhackernewsᚋgraphᚋmodelᚐSort(ctx context.Context, v interface{}) (*model.Sort, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.Sort)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOSort2ᚖgithubᚗcomᚋVarunAttarde22ᚋhackernewsᚋgraphᚋmodelᚐSort(ctx context.Context, sel ast.SelectionSet, v *model.Sort) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

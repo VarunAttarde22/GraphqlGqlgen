@@ -2,6 +2,12 @@
 
 package model
 
+import (
+	"fmt"
+	"io"
+	"strconv"
+)
+
 type Covid struct {
 	ID             string `json:"id"`
 	Dailyconfirmed string `json:"dailyconfirmed"`
@@ -17,6 +23,16 @@ type Covid struct {
 type Covid10 struct {
 	Cursor string `json:"cursor"`
 	Covid  *Covid `json:"covid"`
+}
+
+type CovidDataSort struct {
+	Dailyconfirmed *Sort `json:"dailyconfirmed"`
+	Dailydeceased  *Sort `json:"dailydeceased"`
+	Dailyrecovered *Sort `json:"dailyrecovered"`
+	Date           *Sort `json:"date"`
+	Totalconfirmed *Sort `json:"totalconfirmed"`
+	Totaldeceased  *Sort `json:"totaldeceased"`
+	Totalrecovered *Sort `json:"totalrecovered"`
 }
 
 type Covid1 struct {
@@ -110,4 +126,45 @@ type PageInfo struct {
 type Roles struct {
 	RoleType string    `json:"roleType"`
 	Label    []*string `json:"label"`
+}
+
+type Sort string
+
+const (
+	SortAsc  Sort = "asc"
+	SortDesc Sort = "desc"
+)
+
+var AllSort = []Sort{
+	SortAsc,
+	SortDesc,
+}
+
+func (e Sort) IsValid() bool {
+	switch e {
+	case SortAsc, SortDesc:
+		return true
+	}
+	return false
+}
+
+func (e Sort) String() string {
+	return string(e)
+}
+
+func (e *Sort) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Sort(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Sort", str)
+	}
+	return nil
+}
+
+func (e Sort) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

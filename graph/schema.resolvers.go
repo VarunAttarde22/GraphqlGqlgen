@@ -11,6 +11,8 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"sort"
+	"strconv"
 	"time"
 
 	"github.com/VarunAttarde22/hackernews/graph/generated"
@@ -115,7 +117,8 @@ func (r *queryResolver) GetNodes(ctx context.Context, first *int, after *string)
 	return &mc, nil
 }
 
-func (r *queryResolver) GetNodesByURL(ctx context.Context) ([]*model.Covid, error) {
+func (r *queryResolver) GetNodesByURL(ctx context.Context, sort *model.CovidDataSort) ([]*model.Covid, error) {
+	r.covid = nil
 	response, err := http.Get("https://data.covid19india.org/data.json")
 	if err != nil {
 		panic(err)
@@ -143,6 +146,7 @@ func (r *queryResolver) GetNodesByURL(ctx context.Context) ([]*model.Covid, erro
 		r.covid = append(r.covid, (*model.Covid)(cv))
 
 	}
+	sortRecords(r.covid, sort)
 	defer response.Body.Close()
 	return r.covid, nil
 }
@@ -159,7 +163,6 @@ func (r *queryResolver) GetNodesByURLPagination(ctx context.Context, first *int,
 	// content := string(dataBytes)
 	var myData Person
 	json.Unmarshal(dataBytes, &myData)
-
 	// json.Unmarshal([]byte(content), &myData)
 	for _, val := range myData.Cases_time_series {
 		rand.Seed(time.Now().UnixNano())
@@ -235,8 +238,142 @@ func (r *queryResolver) GetNodesByURLPagination(ctx context.Context, first *int,
 		Covids:   covids[:count],
 		PageInfo: &pageInfo,
 	}
-
 	return &mc, nil
+}
+
+func sortRecords(records []*model.Covid, sortData *model.CovidDataSort) {
+	// fmt.Println(records)
+	// for _, el := range records {
+	// 	fmt.Println(*el)
+	// }
+	// fmt.Println(sortData)
+	var sorted map[string]interface{}
+	marshal, err := json.Marshal(sortData)
+	if err != nil {
+		fmt.Println("Error: ", err)
+	}
+	json.Unmarshal(([]byte)(marshal), &sorted)
+	var sortkey string
+	var sortvalue interface{}
+	for key, val := range sorted {
+		if val != nil {
+			sortkey = key
+			sortvalue = val
+		}
+	}
+	// fmt.Println("Key values: ", sortkey, "\t", sortvalue)
+	// if sortvalue == "asc" {
+	sort.Slice(records, func(i, j int) bool {
+		var sorted bool
+		switch sortkey {
+		case "totaldeceased":
+			iRecord, ierr := strconv.Atoi(records[i].Totaldeceased)
+			jRecord, jerr := strconv.Atoi(records[j].Totaldeceased)
+			if sortvalue == "asc" {
+				if ierr == nil && jerr == nil {
+					sorted = iRecord < jRecord
+				} else {
+					sorted = records[i].Totaldeceased < records[j].Totaldeceased
+				}
+			} else if sortvalue == "desc" {
+				if ierr == nil && jerr == nil {
+					sorted = iRecord > jRecord
+				} else {
+					sorted = records[i].Totaldeceased > records[j].Totaldeceased
+				}
+			}
+		case "totalconfirmed":
+			iRecord, ierr := strconv.Atoi(records[i].Totalconfirmed)
+			jRecord, jerr := strconv.Atoi(records[j].Totalconfirmed)
+			if sortvalue == "asc" {
+				if ierr == nil && jerr == nil {
+					sorted = iRecord < jRecord
+				} else {
+					sorted = records[i].Totalconfirmed < records[j].Totalconfirmed
+				}
+			} else if sortvalue == "desc" {
+				if ierr == nil && jerr == nil {
+					sorted = iRecord > jRecord
+				} else {
+					sorted = records[i].Totalconfirmed > records[j].Totalconfirmed
+				}
+			}
+		case "totalrecovered":
+			iRecord, ierr := strconv.Atoi(records[i].Totalrecovered)
+			jRecord, jerr := strconv.Atoi(records[j].Totalrecovered)
+			if sortvalue == "asc" {
+				if ierr == nil && jerr == nil {
+					sorted = iRecord < jRecord
+				} else {
+					sorted = records[i].Totalrecovered < records[j].Totalrecovered
+				}
+			} else if sortvalue == "desc" {
+				if ierr == nil && jerr == nil {
+					sorted = iRecord > jRecord
+				} else {
+					sorted = records[i].Totalrecovered > records[j].Totalrecovered
+				}
+			}
+		case "dailydeceased":
+			iRecord, ierr := strconv.Atoi(records[i].Dailydeceased)
+			jRecord, jerr := strconv.Atoi(records[j].Dailydeceased)
+			if sortvalue == "asc" {
+				if ierr == nil && jerr == nil {
+					sorted = iRecord < jRecord
+				} else {
+					sorted = records[i].Dailydeceased < records[j].Dailydeceased
+				}
+			} else if sortvalue == "desc" {
+				if ierr == nil && jerr == nil {
+					sorted = iRecord > jRecord
+				} else {
+					sorted = records[i].Dailydeceased > records[j].Dailydeceased
+				}
+			}
+		case "dailyconfirmed":
+			iRecord, ierr := strconv.Atoi(records[i].Dailyconfirmed)
+			jRecord, jerr := strconv.Atoi(records[j].Dailyconfirmed)
+			if sortvalue == "asc" {
+				if ierr == nil && jerr == nil {
+					sorted = iRecord < jRecord
+				} else {
+					sorted = records[i].Dailyconfirmed < records[j].Dailyconfirmed
+				}
+			} else if sortvalue == "desc" {
+				if ierr == nil && jerr == nil {
+					sorted = iRecord > jRecord
+				} else {
+					sorted = records[i].Dailyconfirmed > records[j].Dailyconfirmed
+				}
+			}
+		case "dailyrecovered":
+			iRecord, ierr := strconv.Atoi(records[i].Dailyrecovered)
+			jRecord, jerr := strconv.Atoi(records[j].Dailyrecovered)
+			if sortvalue == "asc" {
+				if ierr == nil && jerr == nil {
+					sorted = iRecord < jRecord
+				} else {
+					sorted = records[i].Dailyrecovered < records[j].Dailyrecovered
+				}
+			} else if sortvalue == "desc" {
+				if ierr == nil && jerr == nil {
+					sorted = iRecord > jRecord
+				} else {
+					sorted = records[i].Dailyrecovered > records[j].Dailyrecovered
+				}
+			}
+		case "date":
+			if sortvalue == "asc" {
+				sorted = records[i].Dateymd < records[j].Dateymd
+			} else if sortvalue == "desc" {
+				sorted = records[i].Dateymd > records[j].Dateymd
+			}
+		}
+		return sorted
+	})
+	// } else if sortvalue == "desc" {
+	// 	sort.Slice()
+	// }
 }
 
 func (r *subscriptionResolver) VideoAdded(ctx context.Context, repoFullName string) (<-chan *model.Node, error) {
